@@ -11,64 +11,57 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'npm'
 
-      - name: Clean install dependencies
-        run: |
-          npm cache clean --force
-          npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
 
-      - name: Verify Next.js installation
-        run: npx next --version
-
-      - name: Build application
+      - name: Build Next.js
         run: npm run build
-        env:
-          NODE_ENV: production
-      
-      - name: Prepare deployment files
+
+      - name: Create deployment package
         run: |
-          mkdir -p deploy-package
-          cp -r .next deploy-package/
-          cp -r node_modules deploy-package/
-          cp package.json deploy-package/
-          cp package-lock.json deploy-package/
-          cp server.js deploy-package/
-          cp web.config deploy-package/
-          [ -d "public" ] && cp -r public deploy-package/ || true
-          [ -f "next.config.js" ] && cp next.config.js deploy-package/ || true
-          [ -f "next.config.mjs" ] && cp next.config.mjs deploy-package/ || true
-      
-      - name: Upload artifact for deployment job
+          mkdir deploy-package
+          Copy-Item -Path .next -Destination deploy-package\.next -Recurse
+          Copy-Item -Path node_modules -Destination deploy-package\node_modules -Recurse
+          Copy-Item -Path package.json -Destination deploy-package\
+          Copy-Item -Path package-lock.json -Destination deploy-package\
+          Copy-Item -Path server.js -Destination deploy-package\
+          Copy-Item -Path web.config -Destination deploy-package\
+          if (Test-Path public) { Copy-Item -Path public -Destination deploy-package\public -Recurse }
+          if (Test-Path next.config.js) { Copy-Item -Path next.config.js -Destination deploy-package\ }
+          if (Test-Path next.config.mjs) { Copy-Item -Path next.config.mjs -Destination deploy-package\ }
+        shell: pwsh
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: deploy-package/
+          path: deploy-package
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -76,7 +69,7 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6ECDEEB3E9B84E298CC7C202163FB3AA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7567A1E43587437A866889AED5C18817 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
