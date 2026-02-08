@@ -12,44 +12,35 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    
+    permissions:
+      contents: read #This is required for actions/checkout
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Archive production artifacts
+      - name: npm install, build, and test
         run: |
-          Compress-Archive -Path .next,node_modules,package.json,package-lock.json -DestinationPath deployment.zip
-          if (Test-Path public) {
-            Compress-Archive -Path public -Update -DestinationPath deployment.zip
-          }
-        shell: pwsh
+          npm install
+          npm run build --if-present
+          npm run test --if-present
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: deployment.zip
+          path: .
 
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
@@ -57,11 +48,18 @@ jobs:
         with:
           name: node-app
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4E3E9B61E33047E9848481E65A7A0C65 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6ECDEEB3E9B84E298CC7C202163FB3AA }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7567A1E43587437A866889AED5C18817 }}
+
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
           app-name: 'propx'
           slot-name: 'Production'
-          package: deployment.zip
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6F7EEEC0DF464763A4EC41E420E3AA3C }}
+          package: .
+          
