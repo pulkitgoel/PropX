@@ -23,11 +23,17 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - name: Clear npm cache
+        run: npm cache clean --force
+        continue-on-error: true
+
+      - name: Install dependencies with yarn
+        run: |
+          npm install -g yarn
+          yarn install --legacy-peer-deps
 
       - name: Build Next.js
-        run: npm run build
+        run: yarn build
 
       - name: Create deployment package
         run: |
@@ -35,7 +41,7 @@ jobs:
           Copy-Item -Path .next -Destination deploy-package\.next -Recurse
           Copy-Item -Path node_modules -Destination deploy-package\node_modules -Recurse
           Copy-Item -Path package.json -Destination deploy-package\
-          Copy-Item -Path package-lock.json -Destination deploy-package\
+          Copy-Item -Path yarn.lock -Destination deploy-package\ -ErrorAction SilentlyContinue
           Copy-Item -Path server.js -Destination deploy-package\
           Copy-Item -Path web.config -Destination deploy-package\
           if (Test-Path public) { Copy-Item -Path public -Destination deploy-package\public -Recurse }
