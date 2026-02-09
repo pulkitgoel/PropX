@@ -38,11 +38,6 @@ jobs:
           cp server.js deployment/
           cp package.json deployment/
           cp package-lock.json deployment/ || true
-          
-      - name: Create .deployment file
-        run: |
-          echo "[config]" > deployment/.deployment
-          echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> deployment/.deployment
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
