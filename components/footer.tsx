@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -87,12 +86,12 @@ export default function Footer() {
                 <ul className="space-y-2">
                   {links.map((link) => (
                     <li key={link.label}>
-                      <Link
+                      <a
                         href={link.href}
                         className="text-white/70 hover:text-white text-sm transition-colors"
                       >
                         {link.label}
-                      </Link>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -122,15 +121,15 @@ export default function Footer() {
                 © {currentYear} PropX. All rights reserved.
               </p>
               <div className="flex flex-wrap gap-4 md:justify-end">
-                <Link href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+                <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
                   Privacy Policy
-                </Link>
-                <Link href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+                </a>
+                <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
                   Terms of Service
-                </Link>
-                <Link href="#" className="text-white/70 hover:text-white text-sm transition-colors">
+                </a>
+                <a href="#" className="text-white/70 hover:text-white text-sm transition-colors">
                   Cookie Policy
-                </Link>
+                </a>
               </div>
             </div>
           </div>
