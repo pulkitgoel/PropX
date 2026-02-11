@@ -22,7 +22,7 @@ const leads = {
 }
 
 const KanbanColumn = ({ title, count, items, color }: { title: string, count: number, items: any[], color: string }) => (
-  <div className="flex-1 min-w-[300px]">
+  <div className="flex-1 min-w-[280px] md:min-w-[300px]">
     <div className={`flex items-center justify-between p-3 rounded-lg mb-4 ${color}`}>
       <span className="font-medium">{title}</span>
       <Badge variant="secondary" className="bg-white/50">{count}</Badge>
@@ -60,22 +60,22 @@ const KanbanColumn = ({ title, count, items, color }: { title: string, count: nu
 
 export default function Leads() {
   return (
-    <div className="space-y-6 overflow-x-auto">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Leads Management</h2>
           <p className="text-muted-foreground">Track and manage property inquiries</p>
         </div>
-        <div className="flex bg-gray-100 p-1 rounded-lg">
-          <Button variant="ghost" size="sm" className="bg-white shadow-sm">Kanban View</Button>
-          <Button variant="ghost" size="sm">List View</Button>
+        <div className="flex bg-gray-100 p-1 rounded-lg self-start md:self-auto">
+          <Button variant="ghost" size="sm" className="bg-white shadow-sm flex-1 md:flex-none">Kanban View</Button>
+          <Button variant="ghost" size="sm" className="flex-1 md:flex-none">List View</Button>
         </div>
       </div>
 
-      <div className="flex gap-4 pb-4">
+      <div className="flex flex-col md:flex-row gap-4 pb-4 overflow-x-auto">
         <KanbanColumn title="New" count={2} items={leads.new} color="bg-blue-100 text-blue-700" />
         <KanbanColumn title="Contacted" count={2} items={leads.contacted} color="bg-yellow-100 text-yellow-700" />
-        <KanbanColumn title="Scheduled" count={1} items={leads.scheduled} color="bg-purple-100 text-purple-700" />
+        <KanbanColumn title="Scheduled" count={1} items={leads.scheduled} color="bg-orange-100 text-orange-700" />
         <KanbanColumn title="Converted" count={1} items={leads.converted} color="bg-green-100 text-green-700" />
         <KanbanColumn title="Lost" count={0} items={leads.lost} color="bg-gray-100 text-gray-700" />
       </div>
